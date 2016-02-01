@@ -33,10 +33,10 @@ Help
 
 ```
 usage: xqemurun [-h] [--config FILE] [--qemu FILE] [--kvm OPTION]
-                [--machine OPTION] [--short OPTION] [--bootrom FILE]
-                [--bios FILE] [--disk FILE] [--hub OPTION] [--pad1 OPTION]
-                [--pad2 OPTION] [--pad3 OPTION] [--pad4 OPTION]
-                [FILE]
+                   [--machine OPTION] [--short OPTION] [--bootrom FILE]
+                   [--bios FILE] [--disk FILE] [--hub OPTION] [--pad1 OPTION]
+                   [--pad2 OPTION] [--pad3 OPTION] [--pad4 OPTION]
+                   [FILE]
 
 xqemurun helps to run xqemu easily.
 
@@ -58,21 +58,3 @@ optional arguments:
   --pad2 OPTION     usb pad2 device option
   --pad3 OPTION     usb pad3 device option
   --pad4 OPTION     usb pad4 device option
-```
-
-Warning
--------
-
-XQEMU is in a very early state, do not expect so much.
-
-No warranty is given, use this at your own risk.
-
-Author
-------
-
-Thomas Debesse <dev@illwieckz.net>
-
-Copyright
----------
-
-This tool is distributed under the highly permissive and laconic [ISC License](COPYING.md).
