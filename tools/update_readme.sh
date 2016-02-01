@@ -45,7 +45,7 @@ EOF
 
 src/xqemurun.py --help | sed -e 's/xqemurun.py/xqemurun/'
 
-<<\EOF
+cat <<\EOF
 ```
 
 Warning

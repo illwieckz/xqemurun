@@ -62,3 +62,21 @@ optional arguments:
   --pad2 OPTION     usb pad2 device option
   --pad3 OPTION     usb pad3 device option
   --pad4 OPTION     usb pad4 device option
+```
+
+Warning
+-------
+
+XQEMU is in a very early state, do not expect so much.
+
+No warranty is given, use this at your own risk.
+
+Author
+------
+
+Thomas Debesse <dev@illwieckz.net>
+
+Copyright
+---------
+
+This tool is distributed under the highly permissive and laconic [ISC License](COPYING.md).
