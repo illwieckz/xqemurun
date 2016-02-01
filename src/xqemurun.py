@@ -83,6 +83,7 @@ class XQEMURun():
 		args.add_argument("--qemu", dest="qemu", metavar="FILE", help="path to xqemu binary, default: qemu-system-xbox")
 		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable kvm, default: no")
 		args.add_argument("--machine", dest="machine", metavar="OPTION", help="machine type, default: xbox")
+		args.add_argument("--short", dest="short", metavar="OPTION", help="skip the logo animation, default: no")
 		args.add_argument("--bootrom", dest="bootrom", metavar="FILE", help="path to bootrom dump")
 		args.add_argument("--bios", dest="bios", metavar="FILE", help="path to bios dump")
 		args.add_argument("--disk", dest="disk", metavar="FILE", help="path to disk image")
@@ -116,11 +117,14 @@ class XQEMURun():
 		if args.qemu:
 			self.config_runtime.setKey("bin", "qemu_bin", os.path.abspath(args.qemu))
 
-		if args.kvm == "yes":
-			self.config_runtime.setKey("core", "kvm", "yes")
+		if args.kvm:
+			self.config_runtime.setKey("core", "kvm", args.kvm)
 
 		if args.machine:
 			self.config_runtime.setKey("core", "machine", args.machine)
+
+		if args.short:
+			self.config_runtime.setKey("core", "short", args.short)
 
 		if args.bootrom:
 			self.config_runtime.setKey("sys", "bootrom", os.path.abspath(args.bootrom))
@@ -205,9 +209,16 @@ class XQEMURun():
 		else:
 			print("kvm: disabled")
 
+		if self.config_runtime.getKey("core", "short") == "yes":
+			print("ski logo animation: yes")
+			qemu_machine_arg += ",short_animation"
+		else:
+			print("ski logo animation: no")
+
 		bootrom_path = self.config_runtime.getKey("sys", "bootrom")
 		print("bootrom dump: " + bootrom_path)
 		qemu_machine_arg += ",bootrom=" + bootrom_path
+
 		qemu_command += [ "-machine", qemu_machine_arg ]
 
 		bios_path = self.config_runtime.getKey("sys", "bios")

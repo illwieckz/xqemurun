@@ -33,9 +33,9 @@ Help
 
 ```
 usage: xqemurun [-h] [--config FILE] [--qemu FILE] [--kvm OPTION]
-                [--machine OPTION] [--bootrom FILE] [--bios FILE]
-                [--disk FILE] [--hub OPTION] [--pad1 OPTION] [--pad2 OPTION]
-                [--pad3 OPTION] [--pad4 OPTION]
+                [--machine OPTION] [--short OPTION] [--bootrom FILE]
+                [--bios FILE] [--disk FILE] [--hub OPTION] [--pad1 OPTION]
+                [--pad2 OPTION] [--pad3 OPTION] [--pad4 OPTION]
                 [FILE]
 
 xqemurun helps to run xqemu easily.
@@ -49,6 +49,7 @@ optional arguments:
   --qemu FILE       path to xqemu binary, default: qemu-system-xbox
   --kvm OPTION      enable kvm, default: no
   --machine OPTION  machine type, default: xbox
+  --short OPTION    skip the logo animation, default: no
   --bootrom FILE    path to bootrom dump
   --bios FILE       path to bios dump
   --disk FILE       path to disk image
