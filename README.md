@@ -32,10 +32,10 @@ Help
 ----
 
 ```
-usage: xqemurun [-h] [--qemu FILE] [--config FILE] [--enable-kvm OPTION]
-                [--bios FILE] [--bootrom FILE] [--disk FILE] [--usbhub OPTION]
-                [--pad1 OPTION] [--pad2 OPTION] [--pad3 OPTION]
-                [--pad4 OPTION]
+usage: xqemurun [-h] [--config FILE] [--qemu FILE] [--enable-kvm OPTION]
+                [--machine OPTION] [--bootrom FILE] [--bios FILE]
+                [--disk FILE] [--usbhub OPTION] [--pad1 OPTION]
+                [--pad2 OPTION] [--pad3 OPTION] [--pad4 OPTION]
                 [FILE]
 
 xqemurun helps to run xqemu easily.
@@ -45,11 +45,12 @@ positional arguments:
 
 optional arguments:
   -h, --help           show this help message and exit
-  --qemu FILE          path to xqemu binary, default: qemu-system-xbox
   --config FILE        path to config file
+  --qemu FILE          path to xqemu binary, default: qemu-system-xbox
   --enable-kvm OPTION  enable kvm, default: no
-  --bios FILE          path to bios dump
+  --machine OPTION     machine type, default: xbox
   --bootrom FILE       path to bootrom dump
+  --bios FILE          path to bios dump
   --disk FILE          path to disk image
   --usbhub OPTION      usb hub option, default: emulated
   --pad1 OPTION        pad1 device option, default: keyboard

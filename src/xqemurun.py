@@ -79,11 +79,12 @@ class XQEMURun():
 
 	def main(self):
 		args = argparse.ArgumentParser(description="%(prog)s helps to run xqemu easily.")
-		args.add_argument("--qemu", dest="qemu", metavar="FILE", help="path to xqemu binary, default: qemu-system-xbox")
 		args.add_argument("--config", dest="config", metavar="FILE", help="path to config file")
+		args.add_argument("--qemu", dest="qemu", metavar="FILE", help="path to xqemu binary, default: qemu-system-xbox")
 		args.add_argument("--enable-kvm", dest="enable_kvm", metavar="OPTION", help="enable kvm, default: no")
-		args.add_argument("--bios", dest="bios", metavar="FILE", help="path to bios dump")
+		args.add_argument("--machine", dest="machine", metavar="OPTION", help="machine type, default: xbox")
 		args.add_argument("--bootrom", dest="bootrom", metavar="FILE", help="path to bootrom dump")
+		args.add_argument("--bios", dest="bios", metavar="FILE", help="path to bios dump")
 		args.add_argument("--disk", dest="disk", metavar="FILE", help="path to disk image")
 		args.add_argument("--usbhub", dest="usbhub", metavar="OPTION", help="usb hub option, default: emulated")
 		args.add_argument("--pad1", dest="pad1", metavar="OPTION", help="pad1 device option, default: keyboard")
@@ -112,11 +113,14 @@ class XQEMURun():
 		else:
 			print("Default config file not there")
 
+		if args.qemu:
+			self.config_runtime.setKey("bin", "qemu_bin", os.path.abspath(args.qemu))
+
 		if args.enable_kvm == "yes":
 			self.config_runtime.setKey("core", "kvm_enabled", "yes")
 
-		if args.qemu:
-			self.config_runtime.setKey("bin", "qemu_bin", os.path.abspath(args.qemu))
+		if args.machine:
+			self.config_runtime.setKey("core", "machine_type", args.machine)
 
 		if args.bootrom:
 			self.config_runtime.setKey("sys", "bootrom_dump", os.path.abspath(args.bootrom))
@@ -183,7 +187,15 @@ class XQEMURun():
 		qemu_cpu_arg="pentium3"
 		qemu_command += [ "-cpu", qemu_cpu_arg ]
 
-		qemu_memory_arg="64"
+		if self.config_runtime.getKey("core", "machine_type") == "chihiro":
+			print("machine type: chihiro")
+			print("memory: 128Mb")
+			qemu_memory_arg="128"
+		else:
+			print("machine type: xbox")
+			print("memory: 64Mb")
+			qemu_memory_arg="64"
+
 		qemu_command += [ "-m", qemu_memory_arg ]
 
 		qemu_machine_arg = "xbox"
