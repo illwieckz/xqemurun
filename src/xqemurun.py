@@ -131,6 +131,9 @@ class XQEMURun():
 		if args.disk:
 			self.config_runtime.setKey("sys", "disk_image", os.path.abspath(args.disk))
 
+		if args.iso:
+			self.config_runtime.setKey("sys", "media_iso", os.path.abspath(args.iso))
+
 		if args.usbhub:
 			self.config_runtime.setKey("usb", "usb_hub", args.usbhub)
 
@@ -145,9 +148,6 @@ class XQEMURun():
 
 		if args.pad4:
 			self.config_runtime.setKey("usb", "usb_pad4", args.pad4)
-
-		if args.iso:
-			self.config_runtime.setKey("sys", "media_image", os.path.abspath(args.iso))
 
 		self.cli()
 
