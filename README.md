@@ -1,7 +1,7 @@
 XQEMURun
 ========
 
-![XQEMU](http://dl.illwieckz.net/b/xqemu/20160128-111444.xqemu.png)
+![XQEMU](http://dl.illwieckz.net/b/xqemu/20160201-074350.xqemu.png)
 
 Description
 -----------
@@ -10,7 +10,7 @@ This is a simple wrapper for the [XQEMU](https://github.com/espes/xqemu) binary.
 
 If you run `xqemurun` without option and something required is missing, it will ask you for required files and write a config file for you.
 
-Once configured (see [config.ini](sample/config.ini) for all options available), you can run any iso you like this way:
+Once configured (see [config.ini](sample/config.ini) for all options available), you can run any iso you want this way:
 
 ```sh
 xqemurun media.iso
