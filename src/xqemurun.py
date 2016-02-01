@@ -81,16 +81,16 @@ class XQEMURun():
 		args = argparse.ArgumentParser(description="%(prog)s helps to run xqemu easily.")
 		args.add_argument("--config", dest="config", metavar="FILE", help="path to config file")
 		args.add_argument("--qemu", dest="qemu", metavar="FILE", help="path to xqemu binary, default: qemu-system-xbox")
-		args.add_argument("--enable-kvm", dest="enable_kvm", metavar="OPTION", help="enable kvm, default: no")
+		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable kvm, default: no")
 		args.add_argument("--machine", dest="machine", metavar="OPTION", help="machine type, default: xbox")
 		args.add_argument("--bootrom", dest="bootrom", metavar="FILE", help="path to bootrom dump")
 		args.add_argument("--bios", dest="bios", metavar="FILE", help="path to bios dump")
 		args.add_argument("--disk", dest="disk", metavar="FILE", help="path to disk image")
-		args.add_argument("--usbhub", dest="usbhub", metavar="OPTION", help="usb hub option, default: emulated")
-		args.add_argument("--pad1", dest="pad1", metavar="OPTION", help="pad1 device option, default: keyboard")
-		args.add_argument("--pad2", dest="pad2", metavar="OPTION", help="pad2 device option")
-		args.add_argument("--pad3", dest="pad3", metavar="OPTION", help="pad3 device option")
-		args.add_argument("--pad4", dest="pad4", metavar="OPTION", help="pad4 device option")
+		args.add_argument("--hub", dest="hub", metavar="OPTION", help="usb hub option, default: emulated")
+		args.add_argument("--pad1", dest="pad1", metavar="OPTION", help="usb pad1 device option, default: keyboard")
+		args.add_argument("--pad2", dest="pad2", metavar="OPTION", help="usb pad2 device option")
+		args.add_argument("--pad3", dest="pad3", metavar="OPTION", help="usb pad3 device option")
+		args.add_argument("--pad4", dest="pad4", metavar="OPTION", help="usb pad4 device option")
 		args.add_argument("iso", nargs='?', metavar="FILE", help="path to media iso")
 
 		args = args.parse_args()
@@ -116,38 +116,38 @@ class XQEMURun():
 		if args.qemu:
 			self.config_runtime.setKey("bin", "qemu_bin", os.path.abspath(args.qemu))
 
-		if args.enable_kvm == "yes":
-			self.config_runtime.setKey("core", "kvm_enabled", "yes")
+		if args.kvm == "yes":
+			self.config_runtime.setKey("core", "kvm", "yes")
 
 		if args.machine:
-			self.config_runtime.setKey("core", "machine_type", args.machine)
+			self.config_runtime.setKey("core", "machine", args.machine)
 
 		if args.bootrom:
-			self.config_runtime.setKey("sys", "bootrom_dump", os.path.abspath(args.bootrom))
+			self.config_runtime.setKey("sys", "bootrom", os.path.abspath(args.bootrom))
 
 		if args.bios:
-			self.config_runtime.setKey("sys", "bios_dump", os.path.abspath(args.bios))
+			self.config_runtime.setKey("sys", "bios", os.path.abspath(args.bios))
 
 		if args.disk:
-			self.config_runtime.setKey("sys", "disk_image", os.path.abspath(args.disk))
+			self.config_runtime.setKey("sys", "disk", os.path.abspath(args.disk))
 
 		if args.iso:
-			self.config_runtime.setKey("sys", "media_iso", os.path.abspath(args.iso))
+			self.config_runtime.setKey("sys", "media", os.path.abspath(args.iso))
 
-		if args.usbhub:
-			self.config_runtime.setKey("usb", "usb_hub", args.usbhub)
+		if args.hub:
+			self.config_runtime.setKey("usb", "hub", args.hub)
 
 		if args.pad1:
-			self.config_runtime.setKey("usb", "usb_pad1", args.pad1)
+			self.config_runtime.setKey("usb", "pad1", args.pad1)
 
 		if args.pad2:
-			self.config_runtime.setKey("usb", "usb_pad2", args.pad2)
+			self.config_runtime.setKey("usb", "pad2", args.pad2)
 
 		if args.pad3:
-			self.config_runtime.setKey("usb", "usb_pad3", args.pad3)
+			self.config_runtime.setKey("usb", "pad3", args.pad3)
 
 		if args.pad4:
-			self.config_runtime.setKey("usb", "usb_pad4", args.pad4)
+			self.config_runtime.setKey("usb", "pad4", args.pad4)
 
 		self.cli()
 
@@ -159,15 +159,15 @@ class XQEMURun():
 			self.config_runtime.setKey("bin", "qemu_bin", qemu_bin_path)
 			self.config_file.setKey("bin", "qemu_bin", qemu_bin_path)
 
-		if not self.config_runtime.getKey("sys", "bootrom_dump"):
-			bootrom_dump_path = input("path to bootrom dump: ")
-			self.config_runtime.setKey("sys", "bootrom_dump", bootrom_dump_path)
-			self.config_file.setKey("sys", "bootrom_dump", bootrom_dump_path)
+		if not self.config_runtime.getKey("sys", "bootrom"):
+			bootrom_path = input("path to bootrom dump: ")
+			self.config_runtime.setKey("sys", "bootrom", bootrom_path)
+			self.config_file.setKey("sys", "bootrom", bootrom_path)
 
-		if not self.config_runtime.getKey("sys", "bios_dump"):
-			bios_dump_path = input("path to bios dump: ")
-			self.config_runtime.setKey("sys", "bios_dump", bios_dump_path)
-			self.config_file.setKey("sys", "bios_dump", bios_dump_path)
+		if not self.config_runtime.getKey("sys", "bios"):
+			bios_path = input("path to bios dump: ")
+			self.config_runtime.setKey("sys", "bios", bios_path)
+			self.config_file.setKey("sys", "bios", bios_path)
 
 		self.config_file.conditionalWriteDefault()
 
@@ -187,7 +187,7 @@ class XQEMURun():
 		qemu_cpu_arg="pentium3"
 		qemu_command += [ "-cpu", qemu_cpu_arg ]
 
-		if self.config_runtime.getKey("core", "machine_type") == "chihiro":
+		if self.config_runtime.getKey("core", "machine") == "chihiro":
 			print("machine type: chihiro")
 			print("memory: 128Mb")
 			qemu_memory_arg="128"
@@ -199,27 +199,27 @@ class XQEMURun():
 		qemu_command += [ "-m", qemu_memory_arg ]
 
 		qemu_machine_arg = "xbox"
-		if self.config_runtime.getKey("core", "kvm_enabled") == "yes":
+		if self.config_runtime.getKey("core", "kvm") == "yes":
 			print("kvm: enabled")
 			qemu_machine_arg += ",accel=kvm,kernel_irqchip=off"
 		else:
 			print("kvm: disabled")
 
-		bootrom_dump_path = self.config_runtime.getKey("sys", "bootrom_dump")
-		print("bootrom dump: " + bootrom_dump_path)
-		qemu_machine_arg += ",bootrom=" + bootrom_dump_path
+		bootrom_path = self.config_runtime.getKey("sys", "bootrom")
+		print("bootrom dump: " + bootrom_path)
+		qemu_machine_arg += ",bootrom=" + bootrom_path
 		qemu_command += [ "-machine", qemu_machine_arg ]
 
-		bios_dump_path = self.config_runtime.getKey("sys", "bios_dump")
-		print("bios dump: " + bios_dump_path)
-		qemu_bios_arg = bios_dump_path
+		bios_path = self.config_runtime.getKey("sys", "bios")
+		print("bios dump: " + bios_path)
+		qemu_bios_arg = bios_path
 		qemu_command += [ "-bios", qemu_bios_arg ]
 
 		qemu_disk_arg = "index=0,media=disk,locked=on"
-		disk_image_path = self.config_runtime.getKey("sys", "disk_image")
-		if disk_image_path:
-			print("disk image: " + disk_image_path)
-			qemu_disk_arg += ",file=" + disk_image_path
+		disk_path = self.config_runtime.getKey("sys", "disk")
+		if disk_path:
+			print("disk image: " + disk_path)
+			qemu_disk_arg += ",file=" + disk_path
 		else:
 			print("disk image: none")
 			qemu_disk_arg += ",file=/dev/zero"
@@ -227,10 +227,10 @@ class XQEMURun():
 		qemu_command += [ "-drive", qemu_disk_arg ]
 
 		qemu_media_arg = "index=1,media=cdrom"
-		media_iso_path = self.config_runtime.getKey("sys", "media_iso")
-		if media_iso_path:
-			print("media iso: " + media_iso_path)
-			qemu_media_arg += ",file=" + media_iso_path
+		media_path = self.config_runtime.getKey("sys", "media")
+		if media_path:
+			print("media iso: " + media_path)
+			qemu_media_arg += ",file=" + media_path
 		else:
 			print("media iso: none")
 
@@ -242,7 +242,7 @@ class XQEMURun():
 		pad_dict["pad3"] = "1"
 		pad_dict["pad4"] = "2"
 
-		usb_hub_option = self.config_runtime.getKey("usb", "usb_hub")
+		usb_hub_option = self.config_runtime.getKey("usb", "hub")
 		if not usb_hub_option:
 			usb_hub_option = "emulated"
 
