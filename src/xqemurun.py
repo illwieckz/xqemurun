@@ -80,8 +80,9 @@ class XQEMURun():
 	def main(self):
 		args = argparse.ArgumentParser(description="%(prog)s helps to run xqemu easily.")
 		args.add_argument("--config", dest="config", metavar="FILE", help="path to config file")
-		args.add_argument("--qemu", dest="qemu", metavar="FILE", help="path to xqemu binary, default: qemu-system-xbox")
-		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable kvm, default: no")
+		args.add_argument("--qemu", dest="qemu", metavar="FILE", help="path to XQEMU binary, default: qemu-system-xbox")
+		args.add_argument("--gdb", dest="gdb", metavar="OPTION", help="enable GDB debug, default: no")
+		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable KVM, default: no")
 		args.add_argument("--machine", dest="machine", metavar="OPTION", help="machine type, default: xbox")
 		args.add_argument("--short", dest="short", metavar="OPTION", help="skip the logo animation, default: no")
 		args.add_argument("--bootrom", dest="bootrom", metavar="FILE", help="path to bootrom dump")
@@ -116,6 +117,9 @@ class XQEMURun():
 
 		if args.qemu:
 			self.config_runtime.setKey("bin", "qemu_bin", os.path.abspath(args.qemu))
+
+		if args.gdb:
+			self.config_runtime.setKey("core", "gdb", args.gdb)
 
 		if args.kvm:
 			self.config_runtime.setKey("core", "kvm", args.kvm)
@@ -186,7 +190,20 @@ class XQEMURun():
 		qemu_bin_path = self.config_runtime.getKey("bin", "qemu_bin")
 		print("qemu path: " + qemu_bin_path)
 
-		qemu_command.append(qemu_bin_path)
+		qemu_command += [ qemu_bin_path ]
+
+		if self.config_runtime.getKey("core", "gdb") == "yes":
+			print("gdb debug: enabled")
+			qemu_command += [ "-s", "-S" ]
+		else:
+			print("gdb debug: disabled")
+
+		if self.config_runtime.getKey("core", "kvm") == "yes":
+			print("kvm: enabled")
+			kvm_enabled = True
+		else:
+			print("kvm: disabled")
+			kvm_enabled = False
 
 		qemu_cpu_arg="pentium3"
 		qemu_command += [ "-cpu", qemu_cpu_arg ]
@@ -203,11 +220,9 @@ class XQEMURun():
 		qemu_command += [ "-m", qemu_memory_arg ]
 
 		qemu_machine_arg = "xbox"
-		if self.config_runtime.getKey("core", "kvm") == "yes":
-			print("kvm: enabled")
+
+		if kvm_enabled:
 			qemu_machine_arg += ",accel=kvm,kernel_irqchip=off"
-		else:
-			print("kvm: disabled")
 
 		if self.config_runtime.getKey("core", "short") == "yes":
 			print("ski logo animation: yes")
