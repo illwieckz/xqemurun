@@ -32,11 +32,11 @@ Help
 ----
 
 ```
-usage: xqemurun [-h] [--config FILE] [--qemu FILE] [--gdb OPTION]
-                   [--kvm OPTION] [--machine OPTION] [--short OPTION]
-                   [--bootrom FILE] [--bios FILE] [--disk FILE] [--hub OPTION]
-                   [--pad1 OPTION] [--pad2 OPTION] [--pad3 OPTION]
-                   [--pad4 OPTION]
+usage: xqemurun [-h] [--config FILE] [--dir DIR] [--qemu FILE]
+                   [--gdb OPTION] [--kvm OPTION] [--xdk SOCKET]
+                   [--machine OPTION] [--short OPTION] [--bootrom FILE]
+                   [--bios FILE] [--disk FILE] [--hub OPTION] [--pad1 OPTION]
+                   [--pad2 OPTION] [--pad3 OPTION] [--pad4 OPTION]
                    [FILE]
 
 xqemurun helps to run xqemu easily.
@@ -47,9 +47,11 @@ positional arguments:
 optional arguments:
   -h, --help        show this help message and exit
   --config FILE     path to config file
+  --dir DIR         directory from where to run XQEMU binary, default: none
   --qemu FILE       path to XQEMU binary, default: qemu-system-xbox
   --gdb OPTION      enable GDB debug, default: no
   --kvm OPTION      enable KVM, default: no
+  --xdk SOCKET      path to socket file for XDK serial port, default: none
   --machine OPTION  machine type, default: xbox
   --short OPTION    skip the logo animation, default: no
   --bootrom FILE    path to bootrom dump

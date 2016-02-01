@@ -72,17 +72,19 @@ class XQEMURun():
 		self.config_path = os.path.join(xdg.BaseDirectory.xdg_config_home, self.config_base_dir_name, self.config_base_file_name)
 		self.config_file = ConfigFile()
 		self.config_runtime = ConfigFile()
-		qemu_bin_path = distutils.spawn.find_executable("qemu-system-xbox")
-		if qemu_bin_path:
-			self.config_runtime.setKey("bin", "qemu_bin", qemu_bin_path)
-		self.config_runtime.setKey("bin", "qemu_dir", os.path.abspath("."))
+		self.disabled  = [ "disabled", "off", "no", "none" ]
+		bin_path = distutils.spawn.find_executable("qemu-system-xbox")
+		if bin_path:
+			self.config_runtime.setKey("bin", "bin", bin_path)
 
 	def main(self):
 		args = argparse.ArgumentParser(description="%(prog)s helps to run xqemu easily.")
 		args.add_argument("--config", dest="config", metavar="FILE", help="path to config file")
+		args.add_argument("--dir", dest="dir", metavar="DIR", help="directory from where to run XQEMU binary, default: none")
 		args.add_argument("--qemu", dest="qemu", metavar="FILE", help="path to XQEMU binary, default: qemu-system-xbox")
 		args.add_argument("--gdb", dest="gdb", metavar="OPTION", help="enable GDB debug, default: no")
 		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable KVM, default: no")
+		args.add_argument("--xdk", dest="xdk", metavar="SOCKET", help="path to socket file for XDK serial port, default: none")
 		args.add_argument("--machine", dest="machine", metavar="OPTION", help="machine type, default: xbox")
 		args.add_argument("--short", dest="short", metavar="OPTION", help="skip the logo animation, default: no")
 		args.add_argument("--bootrom", dest="bootrom", metavar="FILE", help="path to bootrom dump")
@@ -93,7 +95,7 @@ class XQEMURun():
 		args.add_argument("--pad2", dest="pad2", metavar="OPTION", help="usb pad2 device option")
 		args.add_argument("--pad3", dest="pad3", metavar="OPTION", help="usb pad3 device option")
 		args.add_argument("--pad4", dest="pad4", metavar="OPTION", help="usb pad4 device option")
-		args.add_argument("iso", nargs='?', metavar="FILE", help="path to media iso")
+		args.add_argument("media", nargs='?', metavar="FILE", help="path to media iso")
 
 		args = args.parse_args()
 
@@ -115,14 +117,32 @@ class XQEMURun():
 		else:
 			print("Default config file not there")
 
+		if args.dir:
+			if args.dir in self.disabled:
+				self.config_runtime.setKey("bin", "dir", "none")
+			else:
+				self.config_runtime.setKey("bin", "dir", os.path.abspath(args.dir))
+
 		if args.qemu:
-			self.config_runtime.setKey("bin", "qemu_bin", os.path.abspath(args.qemu))
+			self.config_runtime.setKey("bin", "bin", os.path.abspath(args.qemu))
 
 		if args.gdb:
-			self.config_runtime.setKey("core", "gdb", args.gdb)
+			if args.gdb in self.disabled:
+				self.config_runtime.setKey("core", "gdb", "no")
+			else:
+				self.config_runtime.setKey("core", "gdb", "yes")
 
 		if args.kvm:
-			self.config_runtime.setKey("core", "kvm", args.kvm)
+			if args.gdb in self.disabled:
+				self.config_runtime.setKey("core", "kvm", "no")
+			else:
+				self.config_runtime.setKey("core", "kvm", "yes")
+
+		if args.xdk:
+			if args.xdk in self.disabled:
+				self.config_runtime.setKey("core", "xdk", args.xdk)
+			else:
+				self.config_runtime.setKey("core", "xdk", os.path.abspath(args.xdk))
 
 		if args.machine:
 			self.config_runtime.setKey("core", "machine", args.machine)
@@ -136,11 +156,15 @@ class XQEMURun():
 		if args.bios:
 			self.config_runtime.setKey("sys", "bios", os.path.abspath(args.bios))
 
-		if args.disk:
+		if args.disk and args.disk not in self.disabled:
 			self.config_runtime.setKey("sys", "disk", os.path.abspath(args.disk))
+		else:
+			self.config_runtime.setKey("sys", "disk", "none")
 
-		if args.iso:
-			self.config_runtime.setKey("sys", "media", os.path.abspath(args.iso))
+		if args.media and args.media not in self.disabled:
+			self.config_runtime.setKey("sys", "media", os.path.abspath(args.media))
+		else:
+			self.config_runtime.setKey("sys", "media", "none")
 
 		if args.hub:
 			self.config_runtime.setKey("usb", "hub", args.hub)
@@ -162,10 +186,10 @@ class XQEMURun():
 	def cli(self):
 
 		alteredConfig = False
-		if not self.config_runtime.getKey("bin", "qemu_bin"):
-			qemu_bin_path = input("path to qemu: ") 
-			self.config_runtime.setKey("bin", "qemu_bin", qemu_bin_path)
-			self.config_file.setKey("bin", "qemu_bin", qemu_bin_path)
+		if not self.config_runtime.getKey("bin", "bin"):
+			bin_path = input("path to qemu: ") 
+			self.config_runtime.setKey("bin", "bin", bin_path)
+			self.config_file.setKey("bin", "bin", bin_path)
 
 		if not self.config_runtime.getKey("sys", "bootrom"):
 			bootrom_path = input("path to bootrom dump: ")
@@ -184,10 +208,13 @@ class XQEMURun():
 	def qemu(self):
 		qemu_command = []
 
-		qemu_dir_path = self.config_runtime.getKey("bin", "qemu_dir")
+		qemu_dir_path = self.config_runtime.getKey("bin", "dir")
+		if not qemu_dir_path or qemu_dir_path in self.disabled:
+			qemu_dir_path = os.path.abspath(".")
+
 		print("qemu execution directory: " + qemu_dir_path)
 
-		qemu_bin_path = self.config_runtime.getKey("bin", "qemu_bin")
+		qemu_bin_path = self.config_runtime.getKey("bin", "bin")
 		print("qemu path: " + qemu_bin_path)
 
 		qemu_command += [ qemu_bin_path ]
@@ -205,6 +232,13 @@ class XQEMURun():
 			print("kvm: disabled")
 			kvm_enabled = False
 
+		xdk_socket = self.config_runtime.getKey("core", "xdk")
+		if xdk_socket and xdk_socket not in self.disabled:
+			print("xdk: " + xdk_socket)
+		else:
+			print("xdk: disabled")
+			xdk_socket = None
+
 		qemu_cpu_arg="pentium3"
 		qemu_command += [ "-cpu", qemu_cpu_arg ]
 
@@ -219,16 +253,20 @@ class XQEMURun():
 
 		qemu_command += [ "-m", qemu_memory_arg ]
 
+		if xdk_socket:
+			qemu_xdk_socket_arg = "unix:" + xdk_socket
+			qemu_command += [ "-device", "lpc47m157", "-serial", qemu_xdk_socket_arg ]
+
 		qemu_machine_arg = "xbox"
 
 		if kvm_enabled:
 			qemu_machine_arg += ",accel=kvm,kernel_irqchip=off"
 
 		if self.config_runtime.getKey("core", "short") == "yes":
-			print("ski logo animation: yes")
+			print("skip logo animation: yes")
 			qemu_machine_arg += ",short_animation"
 		else:
-			print("ski logo animation: no")
+			print("skip logo animation: no")
 
 		bootrom_path = self.config_runtime.getKey("sys", "bootrom")
 		print("bootrom dump: " + bootrom_path)
@@ -243,7 +281,7 @@ class XQEMURun():
 
 		qemu_disk_arg = "index=0,media=disk,locked=on"
 		disk_path = self.config_runtime.getKey("sys", "disk")
-		if disk_path:
+		if disk_path and disk_path not in self.disabled:
 			print("disk image: " + disk_path)
 			qemu_disk_arg += ",file=" + disk_path
 		else:
@@ -254,7 +292,7 @@ class XQEMURun():
 
 		qemu_media_arg = "index=1,media=cdrom"
 		media_path = self.config_runtime.getKey("sys", "media")
-		if media_path:
+		if media_path and media_path not in self.disabled:
 			print("media iso: " + media_path)
 			qemu_media_arg += ",file=" + media_path
 		else:
