@@ -156,15 +156,17 @@ class XQEMURun():
 		if args.bios:
 			self.config_runtime.setKey("sys", "bios", os.path.abspath(args.bios))
 
-		if args.disk and args.disk not in self.disabled:
-			self.config_runtime.setKey("sys", "disk", os.path.abspath(args.disk))
-		else:
-			self.config_runtime.setKey("sys", "disk", "none")
+		if args.disk:
+			if args.disk in self.disabled:
+				self.config_runtime.setKey("sys", "disk", "none")
+			else:
+				self.config_runtime.setKey("sys", "disk", os.path.abspath(args.disk))
 
-		if args.media and args.media not in self.disabled:
-			self.config_runtime.setKey("sys", "media", os.path.abspath(args.media))
-		else:
-			self.config_runtime.setKey("sys", "media", "none")
+		if args.media:
+			if args.media in self.disabled:
+				self.config_runtime.setKey("sys", "media", "none")
+			else:
+				self.config_runtime.setKey("sys", "media", os.path.abspath(args.media))
 
 		if args.hub:
 			self.config_runtime.setKey("usb", "hub", args.hub)
