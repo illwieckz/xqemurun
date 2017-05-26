@@ -110,12 +110,12 @@ class XQEMURun():
 				self.config_file.readFile(config_file_path)
 				self.config_runtime.importConfig(self.config_file)
 
-		print("Default config file: " + self.config_path)
+		print("default config file: " + self.config_path)
 		if os.path.isfile(self.config_path):
 			self.config_file.readDefault()
 			self.config_runtime.importConfig(self.config_file)
 		else:
-			print("Default config file not there")
+			print("default config file not there")
 
 		if args.dir:
 			if args.dir in self.disabled:
@@ -188,20 +188,35 @@ class XQEMURun():
 	def cli(self):
 
 		alteredConfig = False
+
+		machine = self.config_runtime.getKey("core", "machine")
+
+		if not machine:
+			machine = input("machine [xbox]:")
+
+			if machine == "":
+				machine = "xbox"
+
+			if machine not in [ "xbox", "chihiro" ]:
+				raise(Exception("UnknownMachine"))
+
+			self.config_runtime.setKey("core", "machine", machine)
+			self.config_file.setKey("core", "machine", machine)
+
 		if not self.config_runtime.getKey("bin", "bin"):
 			bin_path = input("path to qemu: ") 
 			self.config_runtime.setKey("bin", "bin", bin_path)
 			self.config_file.setKey("bin", "bin", bin_path)
 
-		if not self.config_runtime.getKey("sys", "bootrom"):
+		if not self.config_runtime.getKey(machine, "bootrom"):
 			bootrom_path = input("path to bootrom dump: ")
-			self.config_runtime.setKey("sys", "bootrom", bootrom_path)
-			self.config_file.setKey("sys", "bootrom", bootrom_path)
+			self.config_runtime.setKey(machine, "bootrom", bootrom_path)
+			self.config_file.setKey(machine, "bootrom", bootrom_path)
 
-		if not self.config_runtime.getKey("sys", "bios"):
+		if not self.config_runtime.getKey(machine, "bios"):
 			bios_path = input("path to bios dump: ")
-			self.config_runtime.setKey("sys", "bios", bios_path)
-			self.config_file.setKey("sys", "bios", bios_path)
+			self.config_runtime.setKey(machine, "bios", bios_path)
+			self.config_file.setKey(machine, "bios", bios_path)
 
 		self.config_file.conditionalWriteDefault()
 
@@ -213,6 +228,9 @@ class XQEMURun():
 		qemu_dir_path = self.config_runtime.getKey("bin", "dir")
 		if not qemu_dir_path or qemu_dir_path in self.disabled:
 			qemu_dir_path = os.path.abspath(".")
+
+		machine = self.config_runtime.getKey("core", "machine")
+		print("machine type: " + machine)
 
 		print("qemu execution directory: " + qemu_dir_path)
 
@@ -244,22 +262,27 @@ class XQEMURun():
 		qemu_cpu_arg="pentium3"
 		qemu_command += [ "-cpu", qemu_cpu_arg ]
 
-		if self.config_runtime.getKey("core", "machine") == "chihiro":
-			print("machine type: chihiro")
+		qemu_machine_arg = machine
+
+		if machine == "chihiro":
 			print("memory: 128Mb")
 			qemu_memory_arg="128"
+			mediaboard_path = self.config_runtime.getKey(machine, "bootrom")
+			print("mediaboard dump: " + mediaboard_path)
+			qemu_machine_arg += ",mediaboard_rom=" + mediaboard_path
+
 		else:
-			print("machine type: xbox")
 			print("memory: 64Mb")
 			qemu_memory_arg="64"
+			bootrom_path = self.config_runtime.getKey(machine, "bootrom")
+			print("bootrom dump: " + bootrom_path)
+			qemu_machine_arg += ",bootrom=" + bootrom_path
 
 		qemu_command += [ "-m", qemu_memory_arg ]
 
 		if xdk_socket:
 			qemu_xdk_socket_arg = "unix:" + xdk_socket
 			qemu_command += [ "-device", "lpc47m157", "-serial", qemu_xdk_socket_arg ]
-
-		qemu_machine_arg = "xbox"
 
 		if kvm_enabled:
 			qemu_machine_arg += ",accel=kvm,kernel_irqchip=off"
@@ -270,30 +293,29 @@ class XQEMURun():
 		else:
 			print("skip logo animation: no")
 
-		bootrom_path = self.config_runtime.getKey("sys", "bootrom")
-		print("bootrom dump: " + bootrom_path)
-		qemu_machine_arg += ",bootrom=" + bootrom_path
-
 		qemu_command += [ "-machine", qemu_machine_arg ]
 
-		bios_path = self.config_runtime.getKey("sys", "bios")
+		bios_path = self.config_runtime.getKey(machine, "bios")
 		print("bios dump: " + bios_path)
 		qemu_bios_arg = bios_path
 		qemu_command += [ "-bios", qemu_bios_arg ]
 
-		qemu_disk_arg = "index=0,media=disk,locked=on"
-		disk_path = self.config_runtime.getKey("sys", "disk")
-		if disk_path and disk_path not in self.disabled:
-			print("disk image: " + disk_path)
-			qemu_disk_arg += ",file=" + disk_path
-		else:
-			print("disk image: none")
-			qemu_disk_arg += ",file=/dev/zero"
+		if machine == "xbox":
+			qemu_disk_arg = "index=0,media=disk,locked=on"
+			disk_path = self.config_runtime.getKey(machine, "disk")
 
-		qemu_command += [ "-drive", qemu_disk_arg ]
+			if disk_path and disk_path not in self.disabled:
+				print("disk image: " + disk_path)
+				qemu_disk_arg += ",file=" + disk_path
+			else:
+				print("disk image: none")
+				qemu_disk_arg += ",file=/dev/zero"
+
+			qemu_command += [ "-drive", qemu_disk_arg ]
 
 		qemu_media_arg = "index=1,media=cdrom"
-		media_path = self.config_runtime.getKey("sys", "media")
+
+		media_path = self.config_runtime.getKey(machine, "media")
 		if media_path and media_path not in self.disabled:
 			print("media iso: " + media_path)
 			qemu_media_arg += ",file=" + media_path
