@@ -84,7 +84,7 @@ class XQEMURun():
 			return default
 
 	def main(self):
-		is_demo = not os.environ.get("XQEMURUN_DEMO")
+		is_demo = os.environ.get("XQEMURUN_DEMO")
 
 		if is_demo:
 			self.config_path = '~/.config/xqemurun/config.ini'

@@ -43,8 +43,7 @@ Help
 ```
 EOF
 
-XQEMURUN_DEMO=1
-src/xqemurun --help
+XQEMURUN_DEMO=1 src/xqemurun --help
 
 cat <<\EOF
 ```
