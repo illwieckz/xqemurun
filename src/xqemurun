@@ -74,49 +74,80 @@ class XQEMURun():
 		self.config_runtime = ConfigFile()
 		self.enabled_keyword_list = [ "enable", "enabled", "on", "yes" ]
 		self.disabled_keyword_list = [ "disable", "disabled", "off", "no", "none" ]
-		bin_path = distutils.spawn.find_executable("qemu-system-xbox")
-		if bin_path:
-			self.config_runtime.setKey("bin", "bin", bin_path)
+
+	def getDefault(self, cat, key, default):
+		value = self.config_runtime.getKey(cat, key)
+
+		if value:
+			return value
+		else:
+			return default
 
 	def main(self):
+		is_demo = not os.environ.get("XQEMURUN_DEMO")
+
+		if is_demo:
+			self.config_path = '~/.config/xqemurun/config.ini'
+		else:
+			for xdg_config_dir_path in reversed(xdg.BaseDirectory.xdg_config_dirs):
+				config_file_path = os.path.join(xdg_config_dir_path, self.config_base_dir_name, self.config_base_file_name)
+				self.config_file.readFile(config_file_path)
+				self.config_runtime.importConfig(self.config_file)
+
+		default_options = {}
+		default_options["config"] = self.config_path
+		default_options["dir"] = self.getDefault("bin", "dir", "none")
+		default_options["bin"]=self.getDefault("bin", "bin", "qemu-system-xbox")
+		default_options["gdb"]=self.getDefault("core", "gdb", "disabled")
+		default_options["kvm"]=self.getDefault("core", "kvm", "disabled")
+		default_options["xdk"]=self.getDefault("core", "xdk", "none")
+		default_options["short"] = self.getDefault("core", "short", "no")
+		default_options["machine"] = self.getDefault("core", "machine", "xbox")
+		default_options["bootrom"] = self.getDefault(default_options["machine"], "bootrom", "none")
+		default_options["bios"] = self.getDefault(default_options["machine"], "bios", "none")
+		default_options["disk"] = self.getDefault(default_options["machine"], "disk", "none")
+		default_options["hub"] = self.getDefault("usb", "hub", "emulated")
+		default_options["pad1"] = self.getDefault("usb", "pad1", "keyboard")
+		default_options["pad2"] = self.getDefault("usb", "pad2", "disabled")
+		default_options["pad3"] = self.getDefault("usb", "pad3", "disabled")
+		default_options["pad4"] = self.getDefault("usb", "pad4", "disabled")
+		default_options["media"] = "none"
+
 		args = argparse.ArgumentParser(description="%(prog)s helps to run xqemu easily.")
-		args.add_argument("--config", dest="config", metavar="FILE", help="path to config file")
-		args.add_argument("--dir", dest="dir", metavar="DIR", help="directory from where to run XQEMU binary, default: none")
-		args.add_argument("--qemu", dest="qemu", metavar="FILE", help="path to XQEMU binary, default: qemu-system-xbox")
-		args.add_argument("--gdb", dest="gdb", metavar="OPTION", help="enable GDB debug, default: no")
-		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable KVM, default: no")
-		args.add_argument("--xdk", dest="xdk", metavar="SOCKET", help="path to socket file for XDK serial port, default: none")
-		args.add_argument("--machine", dest="machine", metavar="OPTION", help="machine type, default: xbox")
-		args.add_argument("--short", dest="short", metavar="OPTION", help="skip the logo animation, default: no")
-		args.add_argument("--bootrom", dest="bootrom", metavar="FILE", help="path to bootrom dump")
-		args.add_argument("--bios", dest="bios", metavar="FILE", help="path to bios dump")
-		args.add_argument("--disk", dest="disk", metavar="FILE", help="path to disk image")
-		args.add_argument("--hub", dest="hub", metavar="OPTION", help="usb hub option, default: emulated")
-		args.add_argument("--pad1", dest="pad1", metavar="OPTION", help="usb pad1 device option, default: keyboard")
-		args.add_argument("--pad2", dest="pad2", metavar="OPTION", help="usb pad2 device option")
-		args.add_argument("--pad3", dest="pad3", metavar="OPTION", help="usb pad3 device option")
-		args.add_argument("--pad4", dest="pad4", metavar="OPTION", help="usb pad4 device option")
-		args.add_argument("media", nargs='?', metavar="FILE", help="path to media iso")
+		args.add_argument("--config", dest="config", metavar="FILE", help="path to config file, default: %(default)s", default=default_options["config"])
+		args.add_argument("--dir", dest="dir", metavar="DIR", help="directory from where to run XQEMU binary, default: %(default)s", default=default_options["dir"])
+		args.add_argument("--bin", dest="bin", metavar="FILE", help="XQEMU binary, default: %(default)s", default=default_options["bin"])
+		args.add_argument("--gdb", dest="gdb", metavar="OPTION", help="enable GDB debug, default: %(default)s", default=default_options["gdb"])
+		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable KVM acceleration, default: %(default)s", default=default_options["kvm"])
+		args.add_argument("--xdk", dest="xdk", metavar="SOCKET", help="path to socket file for XDK serial port, default: %(default)s", default=default_options["xdk"])
+		args.add_argument("--short", dest="short", metavar="OPTION", help="skip the logo animation, default: %(default)s", default=default_options["short"])
+		args.add_argument("--machine", dest="machine", metavar="OPTION", help="machine type, default: %(default)s", default=default_options["machine"])
+		args.add_argument("--bootrom", dest="bootrom", metavar="FILE", help="path to bootrom dump, default: %(default)s", default=default_options["bootrom"])
+		args.add_argument("--bios", dest="bios", metavar="FILE", help="path to bios dump, default: %(default)s", default=default_options["bios"])
+		args.add_argument("--disk", dest="disk", metavar="FILE", help="path to disk image, default: %(default)s", default=default_options["disk"])
+		args.add_argument("--hub", dest="hub", metavar="OPTION", help="usb hub option, default: %(default)s", default=default_options["hub"])
+		args.add_argument("--pad1", dest="pad1", metavar="OPTION", help="usb pad1 device option, default: %(default)s", default=default_options["pad1"])
+		args.add_argument("--pad2", dest="pad2", metavar="OPTION", help="usb pad2 device option, default: %(default)s", default=default_options["pad2"])
+		args.add_argument("--pad3", dest="pad3", metavar="OPTION", help="usb pad3 device option, default: %(default)s", default=default_options["pad3"])
+		args.add_argument("--pad4", dest="pad4", metavar="OPTION", help="usb pad4 device option, default: %(default)s", default=default_options["pad4"])
+		args.add_argument("media", nargs='?', metavar="FILE", help="path to media iso, default: %(default)s", default=default_options["media"])
 
 		args = args.parse_args()
+
+		if is_demo:
+			return
 
 		if args.config:
 			self.config_path = os.path.abspath(args.config)
 
 		self.config_file.setDefaultFile(self.config_path)
 
-		for xdg_config_dir_path in reversed(xdg.BaseDirectory.xdg_config_dirs):
-			config_file_path = os.path.join(xdg_config_dir_path, self.config_base_dir_name, self.config_base_file_name)
-			if config_file_path != self.config_path:
-				self.config_file.readFile(config_file_path)
-				self.config_runtime.importConfig(self.config_file)
-
-		print("default config file: " + self.config_path)
+		print("config file: " + self.config_path)
 		if os.path.isfile(self.config_path):
 			self.config_file.readDefault()
 			self.config_runtime.importConfig(self.config_file)
 		else:
-			print("default config file not there")
+			print("config file not there")
 
 		if args.dir:
 			if args.dir in self.disabled_keyword_list:
@@ -124,8 +155,12 @@ class XQEMURun():
 			else:
 				self.config_runtime.setKey("bin", "dir", os.path.abspath(args.dir))
 
-		if args.qemu:
-			self.config_runtime.setKey("bin", "bin", os.path.abspath(args.qemu))
+		if args.bin:
+			if distutils.spawn.find_executable(args.bin):
+				self.config_runtime.setKey("bin", "bin", args.bin)
+			elif os.path.exists(args.bin):
+				# security breach? it silently uses the file in current directory if not in $PATH but in current directory
+				self.config_runtime.setKey("bin", "bin", os.path.abspath(args.bin))
 
 		if args.gdb:
 			if args.gdb in self.disabled_keyword_list:
@@ -189,7 +224,8 @@ class XQEMURun():
 
 		self.cli()
 
-	def cli(self):
+	# not yet used
+	def config(self):
 
 		alteredConfig = False
 
@@ -224,14 +260,13 @@ class XQEMURun():
 
 		self.config_file.conditionalWriteDefault()
 
+	def cli(self):
 		self.qemu()
 
 	def qemu(self):
 		qemu_command = []
 
 		qemu_dir_path = self.config_runtime.getKey("bin", "dir")
-		if not qemu_dir_path or qemu_dir_path in self.disabled_keyword_list:
-			qemu_dir_path = os.path.abspath(".")
 
 		machine = self.config_runtime.getKey("core", "machine")
 		print("machine type: " + machine)
@@ -373,7 +408,9 @@ class XQEMURun():
 
 		print("qemu command line : " + str(qemu_command))
 
-		os.chdir(qemu_dir_path)
+		if qemu_dir_path not in self.disabled_keyword_list:
+			os.chdir(qemu_dir_path)
+
 		subprocess.call(qemu_command)
 
 if __name__ == "__main__":

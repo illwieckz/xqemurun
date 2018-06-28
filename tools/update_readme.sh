@@ -43,7 +43,8 @@ Help
 ```
 EOF
 
-src/xqemurun.py --help | sed -e 's/xqemurun.py/xqemurun/'
+XQEMURUN_DEMO=1
+src/xqemurun --help
 
 cat <<\EOF
 ```

@@ -32,36 +32,37 @@ Help
 ----
 
 ```
-usage: xqemurun [-h] [--config FILE] [--dir DIR] [--qemu FILE]
-                   [--gdb OPTION] [--kvm OPTION] [--xdk SOCKET]
-                   [--machine OPTION] [--short OPTION] [--bootrom FILE]
-                   [--bios FILE] [--disk FILE] [--hub OPTION] [--pad1 OPTION]
-                   [--pad2 OPTION] [--pad3 OPTION] [--pad4 OPTION]
-                   [FILE]
+usage: xqemurun [-h] [--config FILE] [--dir DIR] [--bin FILE] [--gdb OPTION]
+                [--kvm OPTION] [--xdk SOCKET] [--short OPTION]
+                [--machine OPTION] [--bootrom FILE] [--bios FILE]
+                [--disk FILE] [--hub OPTION] [--pad1 OPTION] [--pad2 OPTION]
+                [--pad3 OPTION] [--pad4 OPTION]
+                [FILE]
 
 xqemurun helps to run xqemu easily.
 
 positional arguments:
-  FILE              path to media iso
+  FILE              path to media iso, default: none
 
 optional arguments:
   -h, --help        show this help message and exit
-  --config FILE     path to config file
+  --config FILE     path to config file, default:
+                    ~/.config/xqemurun/config.ini
   --dir DIR         directory from where to run XQEMU binary, default: none
-  --qemu FILE       path to XQEMU binary, default: qemu-system-xbox
-  --gdb OPTION      enable GDB debug, default: no
-  --kvm OPTION      enable KVM, default: no
+  --bin FILE        XQEMU binary, default: qemu-system-xbox
+  --gdb OPTION      enable GDB debug, default: disabled
+  --kvm OPTION      enable KVM acceleration, default: disabled
   --xdk SOCKET      path to socket file for XDK serial port, default: none
-  --machine OPTION  machine type, default: xbox
   --short OPTION    skip the logo animation, default: no
-  --bootrom FILE    path to bootrom dump
-  --bios FILE       path to bios dump
-  --disk FILE       path to disk image
+  --machine OPTION  machine type, default: xbox
+  --bootrom FILE    path to bootrom dump, default: none
+  --bios FILE       path to bios dump, default: none
+  --disk FILE       path to disk image, default: none
   --hub OPTION      usb hub option, default: emulated
   --pad1 OPTION     usb pad1 device option, default: keyboard
-  --pad2 OPTION     usb pad2 device option
-  --pad3 OPTION     usb pad3 device option
-  --pad4 OPTION     usb pad4 device option
+  --pad2 OPTION     usb pad2 device option, default: disabled
+  --pad3 OPTION     usb pad3 device option, default: disabled
+  --pad4 OPTION     usb pad4 device option, default: disabled
 ```
 
 Warning
