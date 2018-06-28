@@ -72,7 +72,8 @@ class XQEMURun():
 		self.config_path = os.path.join(xdg.BaseDirectory.xdg_config_home, self.config_base_dir_name, self.config_base_file_name)
 		self.config_file = ConfigFile()
 		self.config_runtime = ConfigFile()
-		self.disabled  = [ "disabled", "off", "no", "none" ]
+		self.enabled_keyword_list = [ "enable", "enabled", "on", "yes" ]
+		self.disabled_keyword_list = [ "disable", "disabled", "off", "no", "none" ]
 		bin_path = distutils.spawn.find_executable("qemu-system-xbox")
 		if bin_path:
 			self.config_runtime.setKey("bin", "bin", bin_path)
@@ -118,7 +119,7 @@ class XQEMURun():
 			print("default config file not there")
 
 		if args.dir:
-			if args.dir in self.disabled:
+			if args.dir in self.disabled_keyword_list:
 				self.config_runtime.setKey("bin", "dir", "none")
 			else:
 				self.config_runtime.setKey("bin", "dir", os.path.abspath(args.dir))
@@ -127,20 +128,20 @@ class XQEMURun():
 			self.config_runtime.setKey("bin", "bin", os.path.abspath(args.qemu))
 
 		if args.gdb:
-			if args.gdb in self.disabled:
-				self.config_runtime.setKey("core", "gdb", "no")
+			if args.gdb in self.disabled_keyword_list:
+				self.config_runtime.setKey("core", "gdb", "disabled")
 			else:
-				self.config_runtime.setKey("core", "gdb", "yes")
+				self.config_runtime.setKey("core", "gdb", "enabled")
 
 		if args.kvm:
-			if args.gdb in self.disabled:
-				self.config_runtime.setKey("core", "kvm", "no")
+			if args.kvm in self.disabled_keyword_list:
+				self.config_runtime.setKey("core", "kvm", "disabled")
 			else:
-				self.config_runtime.setKey("core", "kvm", "yes")
+				self.config_runtime.setKey("core", "kvm", "enabled")
 
 		if args.xdk:
-			if args.xdk in self.disabled:
-				self.config_runtime.setKey("core", "xdk", args.xdk)
+			if args.xdk in self.disabled_keyword_list:
+				self.config_runtime.setKey("core", "xdk", "none")
 			else:
 				self.config_runtime.setKey("core", "xdk", os.path.abspath(args.xdk))
 
@@ -148,7 +149,10 @@ class XQEMURun():
 			self.config_runtime.setKey("core", "machine", args.machine)
 
 		if args.short:
-			self.config_runtime.setKey("core", "short", args.short)
+			if args.gdb in self.disabled_keyword_list:
+				self.config_runtime.setKey("core", "short", "no")
+			else:
+				self.config_runtime.setKey("core", "short", "yes")
 
 		if args.bootrom:
 			self.config_runtime.setKey("sys", "bootrom", os.path.abspath(args.bootrom))
@@ -157,13 +161,13 @@ class XQEMURun():
 			self.config_runtime.setKey("sys", "bios", os.path.abspath(args.bios))
 
 		if args.disk:
-			if args.disk in self.disabled:
+			if args.disk in self.disabled_keyword_list:
 				self.config_runtime.setKey("sys", "disk", "none")
 			else:
 				self.config_runtime.setKey("sys", "disk", os.path.abspath(args.disk))
 
 		if args.media:
-			if args.media in self.disabled:
+			if args.media in self.disabled_keyword_list:
 				self.config_runtime.setKey("sys", "media", "none")
 			else:
 				self.config_runtime.setKey("sys", "media", os.path.abspath(args.media))
@@ -226,7 +230,7 @@ class XQEMURun():
 		qemu_command = []
 
 		qemu_dir_path = self.config_runtime.getKey("bin", "dir")
-		if not qemu_dir_path or qemu_dir_path in self.disabled:
+		if not qemu_dir_path or qemu_dir_path in self.disabled_keyword_list:
 			qemu_dir_path = os.path.abspath(".")
 
 		machine = self.config_runtime.getKey("core", "machine")
@@ -239,13 +243,13 @@ class XQEMURun():
 
 		qemu_command += [ qemu_bin_path ]
 
-		if self.config_runtime.getKey("core", "gdb") == "yes":
+		if self.config_runtime.getKey("core", "gdb") in self.enabled_keyword_list:
 			print("gdb debug: enabled")
 			qemu_command += [ "-s", "-S" ]
 		else:
 			print("gdb debug: disabled")
 
-		if self.config_runtime.getKey("core", "kvm") == "yes":
+		if self.config_runtime.getKey("core", "kvm") in self.enabled_keyword_list:
 			print("kvm: enabled")
 			kvm_enabled = True
 		else:
@@ -253,7 +257,7 @@ class XQEMURun():
 			kvm_enabled = False
 
 		xdk_socket = self.config_runtime.getKey("core", "xdk")
-		if xdk_socket and xdk_socket not in self.disabled:
+		if xdk_socket and xdk_socket in self.enabled_keyword_list:
 			print("xdk: " + xdk_socket)
 		else:
 			print("xdk: disabled")
@@ -287,7 +291,7 @@ class XQEMURun():
 		if kvm_enabled:
 			qemu_machine_arg += ",accel=kvm,kernel_irqchip=off"
 
-		if self.config_runtime.getKey("core", "short") == "yes":
+		if self.config_runtime.getKey("core", "short") in self.enabled_keyword_list:
 			print("skip logo animation: yes")
 			qemu_machine_arg += ",short_animation"
 		else:
@@ -304,7 +308,7 @@ class XQEMURun():
 			qemu_disk_arg = "index=0,media=disk,locked=on"
 			disk_path = self.config_runtime.getKey(machine, "disk")
 
-			if disk_path and disk_path not in self.disabled:
+			if disk_path and disk_path not in self.disabled_keyword_list:
 				print("disk image: " + disk_path)
 				qemu_disk_arg += ",file=" + disk_path
 			else:
@@ -316,7 +320,7 @@ class XQEMURun():
 		qemu_media_arg = "index=1,media=cdrom"
 
 		media_path = self.config_runtime.getKey(machine, "media")
-		if media_path and media_path not in self.disabled:
+		if media_path and media_path not in self.disabled_keyword_list:
 			print("media iso: " + media_path)
 			qemu_media_arg += ",file=" + media_path
 		else:
