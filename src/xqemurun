@@ -184,7 +184,7 @@ class XQEMURun():
 			self.config_runtime.setKey("core", "machine", args.machine)
 
 		if args.short:
-			if args.gdb in self.disabled_keyword_list:
+			if args.short in self.disabled_keyword_list:
 				self.config_runtime.setKey("core", "short", "no")
 			else:
 				self.config_runtime.setKey("core", "short", "yes")
