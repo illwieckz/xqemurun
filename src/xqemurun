@@ -111,7 +111,7 @@ class XQEMURun():
 		default_options["pad2"] = self.getDefault("usb", "pad2", "disabled")
 		default_options["pad3"] = self.getDefault("usb", "pad3", "disabled")
 		default_options["pad4"] = self.getDefault("usb", "pad4", "disabled")
-		default_options["media"] = "none"
+		default_options["media"] = self.getDefault(default_options["machine"], "media", "none")
 
 		args = argparse.ArgumentParser(description="%(prog)s helps to run xqemu easily.")
 		args.add_argument("--config", dest="config", metavar="FILE", help="path to config file, default: %(default)s", default=default_options["config"])
