@@ -103,6 +103,7 @@ class XQEMURun():
 		default_options["egldebug"]=self.getDefault("sys", "egldebug", "disabled")
 		default_options["gldebug"]=self.getDefault("sys", "gldebug", "disabled")
 		default_options["glsoftware"]=self.getDefault("sys", "glsoftware", "disabled")
+		default_options["vsync"]=self.getDefault("sys", "vsync", "system")
 		default_options["gdb"]=self.getDefault("core", "gdb", "disabled")
 		default_options["kvm"]=self.getDefault("core", "kvm", "disabled")
 		default_options["xdk"]=self.getDefault("core", "xdk", "none")
@@ -127,6 +128,7 @@ class XQEMURun():
 		args.add_argument("--egldebug", dest="egldebug", metavar="OPTION", help="EGL debug info printing, default: %(default)s", default=default_options["egldebug"])
 		args.add_argument("--gldebug", dest="gldebug", metavar="OPTION", help="OpenGL debug info printing, default: %(default)s", default=default_options["gldebug"])
 		args.add_argument("--glsoftware", dest="glsoftware", metavar="DRIVER", help="OpenGL software rendering, default: %(default)s", default=default_options["glsoftware"])
+		args.add_argument("--vsync", dest="vsync", metavar="OPTION", help="Vertical sync mode, default: %(default)s", default=default_options["vsync"])
 		args.add_argument("--gdb", dest="gdb", metavar="OPTION", help="enable GDB debug, default: %(default)s", default=default_options["gdb"])
 		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable KVM acceleration, default: %(default)s", default=default_options["kvm"])
 		args.add_argument("--xdk", dest="xdk", metavar="SOCKET", help="path to socket file for XDK serial port, default: %(default)s", default=default_options["xdk"])
@@ -197,6 +199,8 @@ class XQEMURun():
 		self.config_runtime.setKey("sys", "gldebug", args.gldebug)
 
 		self.config_runtime.setKey("sys", "glsoftware", args.glsoftware)
+
+		self.config_runtime.setKey("sys", "vsync", args.vsync)
 
 		if args.short in self.disabled_keyword_list:
 			self.config_runtime.setKey("core", "short", "no")
@@ -302,6 +306,19 @@ class XQEMURun():
 			if glsoftware not in self.enabled_keyword_list:
 				print("gl software driver: " + glsoftware)
 				os.environ["GALLIUM_DRIVER"] = glsoftware
+
+		vsync = self.config_runtime.getKey("sys", "vsync")
+		if vsync in self.enabled_keyword_list:
+			print("vsync: enabled")
+			os.environ["vblank_mode"] = "3"
+		elif vsync in self.disabled_keyword_list:
+			print("vsync: disabled")
+			os.environ["vblank_mode"] = "0"
+		elif vsync == "system":
+			print("vsync: system")
+		else:
+			print("vsync: vblank mode " + vsync)
+			os.environ["vblank_mode"] = vsync
 
 		qemu_command = []
 
