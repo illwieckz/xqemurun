@@ -99,12 +99,12 @@ class XQEMURun():
 		default_options["dir"] = self.getDefault("bin", "dir", "none")
 		default_options["bin"]=self.getDefault("bin", "bin", "qemu-system-xbox")
 		default_options["display"]=self.getDefault("sys", "display", "sdl")
+		default_options["qemudebug"]=self.getDefault("sys", "qemudebug", "disabled")
 		default_options["mesadebug"]=self.getDefault("sys", "mesadebug", "disabled")
 		default_options["egldebug"]=self.getDefault("sys", "egldebug", "disabled")
 		default_options["gldebug"]=self.getDefault("sys", "gldebug", "disabled")
 		default_options["glsoftware"]=self.getDefault("sys", "glsoftware", "disabled")
 		default_options["vsync"]=self.getDefault("sys", "vsync", "system")
-		default_options["gdb"]=self.getDefault("sys", "gdb", "disabled")
 		default_options["kvm"]=self.getDefault("core", "kvm", "disabled")
 		default_options["xdk"]=self.getDefault("core", "xdk", "none")
 		default_options["short"] = self.getDefault("core", "short", "disabled")
@@ -124,12 +124,12 @@ class XQEMURun():
 		args.add_argument("--dir", dest="dir", metavar="DIRECTORY", help="directory from where to run XQEMU binary, default: %(default)s", default=default_options["dir"])
 		args.add_argument("--bin", dest="bin", metavar="FILE", help="XQEMU binary, default: %(default)s", default=default_options["bin"])
 		args.add_argument("--display", dest="display", metavar="DISPLAY", help="graphical display, default: %(default)s", default=default_options["display"])
+		args.add_argument("--qemudebug", dest="qemudebug", metavar="OPTION", help="enable GDB debug, default: %(default)s", default=default_options["qemudebug"])
 		args.add_argument("--mesadebug", dest="mesadebug", metavar="OPTION", help="Mesa debug info printing, default: %(default)s", default=default_options["mesadebug"])
 		args.add_argument("--egldebug", dest="egldebug", metavar="OPTION", help="EGL debug info printing, default: %(default)s", default=default_options["egldebug"])
 		args.add_argument("--gldebug", dest="gldebug", metavar="OPTION", help="OpenGL debug info printing, default: %(default)s", default=default_options["gldebug"])
 		args.add_argument("--glsoftware", dest="glsoftware", metavar="DRIVER", help="OpenGL software rendering, default: %(default)s", default=default_options["glsoftware"])
 		args.add_argument("--vsync", dest="vsync", metavar="OPTION", help="Vertical sync mode, default: %(default)s", default=default_options["vsync"])
-		args.add_argument("--gdb", dest="gdb", metavar="OPTION", help="enable GDB debug, default: %(default)s", default=default_options["gdb"])
 		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable KVM acceleration, default: %(default)s", default=default_options["kvm"])
 		args.add_argument("--xdk", dest="xdk", metavar="SOCKET", help="path to socket file for XDK serial port, default: %(default)s", default=default_options["xdk"])
 		args.add_argument("--short", dest="short", metavar="OPTION", help="skip the logo animation, default: %(default)s", default=default_options["short"])
@@ -172,11 +172,6 @@ class XQEMURun():
 			# security breach? it silently uses the file in current directory if not in $PATH but in current directory
 			self.config_runtime.setKey("bin", "bin", os.path.abspath(args.bin))
 
-		if args.gdb in self.disabled_keyword_list:
-			self.config_runtime.setKey("sys", "gdb", "disabled"
-		else:
-			self.config_runtime.setKey("sys", "gdb", "enabled")
-
 		if args.kvm in self.disabled_keyword_list:
 			self.config_runtime.setKey("core", "kvm", "disabled")
 		else:
@@ -189,6 +184,11 @@ class XQEMURun():
 
 		self.config_runtime.setKey("core", "machine", args.machine)
 		machine = args.machine
+
+		if args.qemudebug in self.disabled_keyword_list:
+			self.config_runtime.setKey("sys", "qemudebug", "disabled")
+		else:
+			self.config_runtime.setKey("sys", "qemudebug", "enabled")
 
 		self.config_runtime.setKey("sys", "display", args.display)
 
@@ -334,11 +334,11 @@ class XQEMURun():
 
 		qemu_command += [ qemu_bin_path ]
 
-		if self.config_runtime.getKey("sys", "gdb") in self.enabled_keyword_list:
-			print("gdb debug: enabled")
+		if self.config_runtime.getKey("sys", "qemudebug") in self.enabled_keyword_list:
+			print("qemu debug: enabled")
 			qemu_command += [ "-s", "-S" ]
 		else:
-			print("gdb debug: disabled")
+			print("qemu debug: disabled")
 
 		qemu_display = self.config_runtime.getKey("sys", "display")
 		print("display: " + qemu_display)
