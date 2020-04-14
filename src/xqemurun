@@ -151,82 +151,65 @@ class XQEMURun():
 		else:
 			print("config file not there")
 
-		if args.dir:
-			if args.dir in self.disabled_keyword_list:
-				self.config_runtime.setKey("bin", "dir", "none")
-			else:
-				self.config_runtime.setKey("bin", "dir", os.path.abspath(args.dir))
+		if args.dir in self.disabled_keyword_list:
+			self.config_runtime.setKey("bin", "dir", "none")
+		else:
+			self.config_runtime.setKey("bin", "dir", os.path.abspath(args.dir))
 
-		if args.bin:
-			if distutils.spawn.find_executable(args.bin):
-				self.config_runtime.setKey("bin", "bin", args.bin)
-			elif os.path.exists(args.bin):
-				# security breach? it silently uses the file in current directory if not in $PATH but in current directory
-				self.config_runtime.setKey("bin", "bin", os.path.abspath(args.bin))
+		if distutils.spawn.find_executable(args.bin):
+			self.config_runtime.setKey("bin", "bin", args.bin)
+		elif os.path.exists(args.bin):
+			# security breach? it silently uses the file in current directory if not in $PATH but in current directory
+			self.config_runtime.setKey("bin", "bin", os.path.abspath(args.bin))
 
-		if args.gdb:
-			if args.gdb in self.disabled_keyword_list:
-				self.config_runtime.setKey("core", "gdb", "disabled")
-			else:
-				self.config_runtime.setKey("core", "gdb", "enabled")
+		if args.gdb in self.disabled_keyword_list:
+			self.config_runtime.setKey("core", "gdb", "disabled")
+		else:
+			self.config_runtime.setKey("core", "gdb", "enabled")
 
-		if args.kvm:
-			if args.kvm in self.disabled_keyword_list:
-				self.config_runtime.setKey("core", "kvm", "disabled")
-			else:
-				self.config_runtime.setKey("core", "kvm", "enabled")
+		if args.kvm in self.disabled_keyword_list:
+			self.config_runtime.setKey("core", "kvm", "disabled")
+		else:
+			self.config_runtime.setKey("core", "kvm", "enabled")
 
-		if args.xdk:
-			if args.xdk in self.disabled_keyword_list:
-				self.config_runtime.setKey("core", "xdk", "none")
-			else:
-				self.config_runtime.setKey("core", "xdk", os.path.abspath(args.xdk))
+		if args.xdk in self.disabled_keyword_list:
+			self.config_runtime.setKey("core", "xdk", "none")
+		else:
+			self.config_runtime.setKey("core", "xdk", os.path.abspath(args.xdk))
 
-		if args.machine:
-			self.config_runtime.setKey("core", "machine", args.machine)
-			machine = args.machine
+		self.config_runtime.setKey("core", "machine", args.machine)
+		machine = args.machine
 
-		if args.display:
-			self.config_runtime.setKey("sys", "display", args.display)
+		self.config_runtime.setKey("sys", "display", args.display)
 
-		if args.short:
-			if args.short in self.disabled_keyword_list:
-				self.config_runtime.setKey("core", "short", "no")
-			else:
-				self.config_runtime.setKey("core", "short", "yes")
+		if args.short in self.disabled_keyword_list:
+			self.config_runtime.setKey("core", "short", "no")
+		else:
+			self.config_runtime.setKey("core", "short", "yes")
 
-		if args.bootrom:
-			self.config_runtime.setKey(machine, "bootrom", os.path.abspath(args.bootrom))
+		self.config_runtime.setKey(machine, "bootrom", os.path.abspath(args.bootrom))
 
-		if args.bios:
-			self.config_runtime.setKey(machine, "bios", os.path.abspath(args.bios))
+		self.config_runtime.setKey(machine, "bios", os.path.abspath(args.bios))
 
-		if args.disk:
-			if args.disk in self.disabled_keyword_list:
-				self.config_runtime.setKey(machine, "disk", "none")
-			else:
-				self.config_runtime.setKey(machine, "disk", os.path.abspath(args.disk))
+		if args.disk in self.disabled_keyword_list:
+			self.config_runtime.setKey(machine, "disk", "none")
+		else:
+			self.config_runtime.setKey(machine, "disk", os.path.abspath(args.disk))
 
-		if args.media:
-			if args.media in self.disabled_keyword_list:
-				self.config_runtime.setKey(machine, "media", "none")
-			else:
-				self.config_runtime.setKey(machine, "media", os.path.abspath(args.media))
+		if args.media in self.disabled_keyword_list:
+			self.config_runtime.setKey(machine, "media", "none")
+		else:
+			self.config_runtime.setKey(machine, "media", os.path.abspath(args.media))
 
-		if args.hub:
-			self.config_runtime.setKey("usb", "hub", args.hub)
+		self.config_runtime.setKey("usb", "hub", args.hub)
 
-		if args.pad1:
-			self.config_runtime.setKey("usb", "pad1", args.pad1)
+		self.config_runtime.setKey("usb", "pad1", args.pad1)
 
-		if args.pad2:
-			self.config_runtime.setKey("usb", "pad2", args.pad2)
+		self.config_runtime.setKey("usb", "pad2", args.pad2)
 
-		if args.pad3:
-			self.config_runtime.setKey("usb", "pad3", args.pad3)
+		self.config_runtime.setKey("usb", "pad3", args.pad3)
 
-		if args.pad4:
-			self.config_runtime.setKey("usb", "pad4", args.pad4)
+		self.config_runtime.setKey("usb", "pad4", args.pad4)
 
 		self.cli()
 
