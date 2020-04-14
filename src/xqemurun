@@ -99,6 +99,10 @@ class XQEMURun():
 		default_options["dir"] = self.getDefault("bin", "dir", "none")
 		default_options["bin"]=self.getDefault("bin", "bin", "qemu-system-xbox")
 		default_options["display"]=self.getDefault("sys", "display", "sdl")
+		default_options["mesadebug"]=self.getDefault("sys", "mesadebug", "disabled")
+		default_options["egldebug"]=self.getDefault("sys", "egldebug", "disabled")
+		default_options["gldebug"]=self.getDefault("sys", "gldebug", "disabled")
+		default_options["glsoftware"]=self.getDefault("sys", "glsoftware", "disabled")
 		default_options["gdb"]=self.getDefault("core", "gdb", "disabled")
 		default_options["kvm"]=self.getDefault("core", "kvm", "disabled")
 		default_options["xdk"]=self.getDefault("core", "xdk", "none")
@@ -119,6 +123,10 @@ class XQEMURun():
 		args.add_argument("--dir", dest="dir", metavar="DIRECTORY", help="directory from where to run XQEMU binary, default: %(default)s", default=default_options["dir"])
 		args.add_argument("--bin", dest="bin", metavar="FILE", help="XQEMU binary, default: %(default)s", default=default_options["bin"])
 		args.add_argument("--display", dest="display", metavar="DISPLAY", help="graphical display, default: %(default)s", default=default_options["display"])
+		args.add_argument("--mesadebug", dest="mesadebug", metavar="OPTION", help="Mesa debug info printing, default: %(default)s", default=default_options["mesadebug"])
+		args.add_argument("--egldebug", dest="egldebug", metavar="OPTION", help="EGL debug info printing, default: %(default)s", default=default_options["egldebug"])
+		args.add_argument("--gldebug", dest="gldebug", metavar="OPTION", help="OpenGL debug info printing, default: %(default)s", default=default_options["gldebug"])
+		args.add_argument("--glsoftware", dest="glsoftware", metavar="DRIVER", help="OpenGL software rendering, default: %(default)s", default=default_options["glsoftware"])
 		args.add_argument("--gdb", dest="gdb", metavar="OPTION", help="enable GDB debug, default: %(default)s", default=default_options["gdb"])
 		args.add_argument("--kvm", dest="kvm", metavar="OPTION", help="enable KVM acceleration, default: %(default)s", default=default_options["kvm"])
 		args.add_argument("--xdk", dest="xdk", metavar="SOCKET", help="path to socket file for XDK serial port, default: %(default)s", default=default_options["xdk"])
@@ -181,6 +189,14 @@ class XQEMURun():
 		machine = args.machine
 
 		self.config_runtime.setKey("sys", "display", args.display)
+
+		self.config_runtime.setKey("sys", "mesadebug", args.mesadebug)
+
+		self.config_runtime.setKey("sys", "egldebug", args.egldebug)
+
+		self.config_runtime.setKey("sys", "gldebug", args.gldebug)
+
+		self.config_runtime.setKey("sys", "glsoftware", args.glsoftware)
 
 		if args.short in self.disabled_keyword_list:
 			self.config_runtime.setKey("core", "short", "no")
@@ -252,6 +268,41 @@ class XQEMURun():
 		self.qemu()
 
 	def qemu(self):
+		mesadebug = self.config_runtime.getKey("sys", "mesadebug") 
+		if mesadebug in self.enabled_keyword_list:
+			print("mesa debug: enabled")
+			os.environ["MESA_DEBUG"] = "1"
+		elif mesadebug in self.enabled_keyword_list:
+			print("mesa debug: enabled")
+			os.environ["MESA_DEBUG"] = ""
+		elif mesadebug == "system":
+			print("mesa debug: system")
+		else:
+			print("mesa debug: enabled with flags" + mesadebug)
+			os.environ["MESA_DEBUG"] = "1," + mesadebug
+
+		egldebug = self.config_runtime.getKey("sys", "egldebug") 
+		if egldebug in self.enabled_keyword_list:
+			print("egl debug: enabled")
+			os.environ["EGL_LOG_LEVEL"] = "debug"
+		elif egldebug in self.enabled_keyword_list:
+			print("egl debug: enabled")
+			os.environ["EGL_LOG_LEVEL"] = ""
+		elif egldebug == "system":
+			print("egl debug: system")
+		else:
+			print("egl debug: " + egldebug)
+			os.environ["EGL_LOG_LEVEL"] = egldebug
+
+		glsoftware = self.config_runtime.getKey("sys", "glsoftware")
+		if glsoftware not in self.disabled_keyword_list:
+			print("gl software: enabled")
+			os.environ["LIBGL_ALWAYS_SOFTWARE"] = "1"
+
+			if glsoftware not in self.enabled_keyword_list:
+				print("gl software driver: " + glsoftware)
+				os.environ["GALLIUM_DRIVER"] = glsoftware
+
 		qemu_command = []
 
 		qemu_dir_path = self.config_runtime.getKey("bin", "dir")
