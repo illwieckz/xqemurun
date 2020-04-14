@@ -53,7 +53,7 @@ optional arguments:
   --dir DIRECTORY      directory from where to run XQEMU binary, default: none
   --bin FILE           XQEMU binary, default: qemu-system-xbox
   --display DISPLAY    graphical display, default: sdl
-  --qemudebug OPTION   enable GDB debug, default: disabled
+  --qemudebug OPTION   QEMU debug mode, default: disabled
   --mesadebug OPTION   Mesa debug info printing, default: disabled
   --egldebug OPTION    EGL debug info printing, default: disabled
   --gldebug OPTION     OpenGL debug info printing, default: disabled

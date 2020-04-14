@@ -124,7 +124,7 @@ class XQEMURun():
 		args.add_argument("--dir", dest="dir", metavar="DIRECTORY", help="directory from where to run XQEMU binary, default: %(default)s", default=default_options["dir"])
 		args.add_argument("--bin", dest="bin", metavar="FILE", help="XQEMU binary, default: %(default)s", default=default_options["bin"])
 		args.add_argument("--display", dest="display", metavar="DISPLAY", help="graphical display, default: %(default)s", default=default_options["display"])
-		args.add_argument("--qemudebug", dest="qemudebug", metavar="OPTION", help="enable GDB debug, default: %(default)s", default=default_options["qemudebug"])
+		args.add_argument("--qemudebug", dest="qemudebug", metavar="OPTION", help="QEMU debug mode, default: %(default)s", default=default_options["qemudebug"])
 		args.add_argument("--mesadebug", dest="mesadebug", metavar="OPTION", help="Mesa debug info printing, default: %(default)s", default=default_options["mesadebug"])
 		args.add_argument("--egldebug", dest="egldebug", metavar="OPTION", help="EGL debug info printing, default: %(default)s", default=default_options["egldebug"])
 		args.add_argument("--gldebug", dest="gldebug", metavar="OPTION", help="OpenGL debug info printing, default: %(default)s", default=default_options["gldebug"])
