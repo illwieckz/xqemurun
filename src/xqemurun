@@ -104,7 +104,7 @@ class XQEMURun():
 		default_options["gldebug"]=self.getDefault("sys", "gldebug", "disabled")
 		default_options["glsoftware"]=self.getDefault("sys", "glsoftware", "disabled")
 		default_options["vsync"]=self.getDefault("sys", "vsync", "system")
-		default_options["gdb"]=self.getDefault("core", "gdb", "disabled")
+		default_options["gdb"]=self.getDefault("sys", "gdb", "disabled")
 		default_options["kvm"]=self.getDefault("core", "kvm", "disabled")
 		default_options["xdk"]=self.getDefault("core", "xdk", "none")
 		default_options["short"] = self.getDefault("core", "short", "disabled")
@@ -173,9 +173,9 @@ class XQEMURun():
 			self.config_runtime.setKey("bin", "bin", os.path.abspath(args.bin))
 
 		if args.gdb in self.disabled_keyword_list:
-			self.config_runtime.setKey("core", "gdb", "disabled")
+			self.config_runtime.setKey("sys", "gdb", "disabled"
 		else:
-			self.config_runtime.setKey("core", "gdb", "enabled")
+			self.config_runtime.setKey("sys", "gdb", "enabled")
 
 		if args.kvm in self.disabled_keyword_list:
 			self.config_runtime.setKey("core", "kvm", "disabled")
@@ -334,7 +334,7 @@ class XQEMURun():
 
 		qemu_command += [ qemu_bin_path ]
 
-		if self.config_runtime.getKey("core", "gdb") in self.enabled_keyword_list:
+		if self.config_runtime.getKey("sys", "gdb") in self.enabled_keyword_list:
 			print("gdb debug: enabled")
 			qemu_command += [ "-s", "-S" ]
 		else:
