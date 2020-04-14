@@ -102,7 +102,7 @@ class XQEMURun():
 		default_options["gdb"]=self.getDefault("core", "gdb", "disabled")
 		default_options["kvm"]=self.getDefault("core", "kvm", "disabled")
 		default_options["xdk"]=self.getDefault("core", "xdk", "none")
-		default_options["short"] = self.getDefault("core", "short", "no")
+		default_options["short"] = self.getDefault("core", "short", "disabled")
 		default_options["machine"] = self.getDefault("core", "machine", "xbox")
 		default_options["bootrom"] = self.getDefault(default_options["machine"], "bootrom", "none")
 		default_options["bios"] = self.getDefault(default_options["machine"], "bios", "none")
@@ -116,7 +116,7 @@ class XQEMURun():
 
 		args = argparse.ArgumentParser(description="%(prog)s helps to run xqemu easily.")
 		args.add_argument("--config", dest="config", metavar="FILE", help="path to config file, default: %(default)s", default=default_options["config"])
-		args.add_argument("--dir", dest="dir", metavar="DIR", help="directory from where to run XQEMU binary, default: %(default)s", default=default_options["dir"])
+		args.add_argument("--dir", dest="dir", metavar="DIRECTORY", help="directory from where to run XQEMU binary, default: %(default)s", default=default_options["dir"])
 		args.add_argument("--bin", dest="bin", metavar="FILE", help="XQEMU binary, default: %(default)s", default=default_options["bin"])
 		args.add_argument("--display", dest="display", metavar="DISPLAY", help="graphical display, default: %(default)s", default=default_options["display"])
 		args.add_argument("--gdb", dest="gdb", metavar="OPTION", help="enable GDB debug, default: %(default)s", default=default_options["gdb"])
@@ -215,7 +215,6 @@ class XQEMURun():
 
 	# not yet used
 	def config(self):
-
 		alteredConfig = False
 
 		machine = self.config_runtime.getKey("core", "machine")
