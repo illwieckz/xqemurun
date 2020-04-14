@@ -321,6 +321,7 @@ class XQEMURun():
 			os.environ["vblank_mode"] = vsync
 
 		qemu_command = []
+		qemu_options = []
 
 		qemu_dir_path = self.config_runtime.getKey("bin", "dir")
 
@@ -336,13 +337,13 @@ class XQEMURun():
 
 		if self.config_runtime.getKey("sys", "qemudebug") in self.enabled_keyword_list:
 			print("qemu debug: enabled")
-			qemu_command += [ "-s", "-S" ]
+			qemu_options += [ "-s", "-S" ]
 		else:
 			print("qemu debug: disabled")
 
 		qemu_display = self.config_runtime.getKey("sys", "display")
 		print("display: " + qemu_display)
-		qemu_command += [ "-display", qemu_display ]
+		qemu_options += [ "-display", qemu_display ]
 
 		if self.config_runtime.getKey("core", "kvm") in self.enabled_keyword_list:
 			print("kvm: enabled")
@@ -359,7 +360,7 @@ class XQEMURun():
 			xdk_socket = None
 
 		qemu_cpu_arg="pentium3"
-		qemu_command += [ "-cpu", qemu_cpu_arg ]
+		qemu_options += [ "-cpu", qemu_cpu_arg ]
 
 		qemu_machine_arg = machine
 
@@ -377,11 +378,11 @@ class XQEMURun():
 			print("bootrom dump: " + bootrom_path)
 			qemu_machine_arg += ",bootrom=" + bootrom_path
 
-		qemu_command += [ "-m", qemu_memory_arg ]
+		qemu_options += [ "-m", qemu_memory_arg ]
 
 		if xdk_socket:
 			qemu_xdk_socket_arg = "unix:" + xdk_socket
-			qemu_command += [ "-device", "lpc47m157", "-serial", qemu_xdk_socket_arg ]
+			qemu_options += [ "-device", "lpc47m157", "-serial", qemu_xdk_socket_arg ]
 
 		if kvm_enabled:
 			qemu_machine_arg += ",accel=kvm,kernel_irqchip=off"
@@ -392,12 +393,12 @@ class XQEMURun():
 		else:
 			print("skip logo animation: no")
 
-		qemu_command += [ "-machine", qemu_machine_arg ]
+		qemu_options += [ "-machine", qemu_machine_arg ]
 
 		bios_path = self.config_runtime.getKey(machine, "bios")
 		print("bios dump: " + bios_path)
 		qemu_bios_arg = bios_path
-		qemu_command += [ "-bios", qemu_bios_arg ]
+		qemu_options += [ "-bios", qemu_bios_arg ]
 
 		if machine == "xbox":
 			qemu_disk_arg = "index=0,media=disk,locked=on"
@@ -410,7 +411,7 @@ class XQEMURun():
 				print("disk image: none")
 				qemu_disk_arg += ",file=/dev/zero"
 
-			qemu_command += [ "-drive", qemu_disk_arg ]
+			qemu_options += [ "-drive", qemu_disk_arg ]
 
 		qemu_media_arg = "index=1,media=cdrom"
 
@@ -421,7 +422,7 @@ class XQEMURun():
 		else:
 			print("media iso: none")
 
-		qemu_command +=	[ "-drive", qemu_media_arg ]
+		qemu_options +=	[ "-drive", qemu_media_arg ]
 
 		pad_dict = OrderedDict()
 		pad_dict["pad1"] = "3"
@@ -436,14 +437,14 @@ class XQEMURun():
 		if usb_hub_option == "emulated":
 			print("usb hub: emulated")
 			qemu_usb_hub_device_arg = "usb-hub,bus=usb-bus.0,port=3"
-			qemu_command += [ "-usb", "-device", qemu_usb_hub_device_arg ]
+			qemu_options += [ "-usb", "-device", qemu_usb_hub_device_arg ]
 
 		elif usb_hub_option[0:8] == "forward:":
 			print("usb hub: " + usb_hub_option)
 			usb_product_id = usb_hub_option[8:13]
 			usb_vendor_id = usb_hub_option[14:19]
 			qemu_usb_hub_device_arg = "usb-host,bus=usb-bus.0,port=3,productid=" + usb_product_id + ",vendorid=" + usb_vendor_id
-			qemu_command += [ "-usb", "-device", qemu_usb_hub_device_arg ]
+			qemu_options += [ "-usb", "-device", qemu_usb_hub_device_arg ]
 
 		if usb_hub_option == "emulated":
 			for pad in pad_dict.keys():
@@ -457,21 +458,23 @@ class XQEMURun():
 				if usb_pad_option == "keyboard":
 					print("usb " + pad + ": keyboard")
 					qemu_usb_pad_device_arg = "usb-xbox-gamepad,bus=usb-bus.0,port=" + pad_dict[pad] + ".2"
-					qemu_command += [ "-device", qemu_usb_pad_device_arg ]
+					qemu_options += [ "-device", qemu_usb_pad_device_arg ]
 
 				elif usb_pad_option[0:8] == "forward:":
 					print("usb " + pad + ": " + usb_pad_option)
 					usb_product_id = usb_hub_option[8:13]
 					usb_vendor_id = usb_hub_option[14:19]
 					qemu_usb_pad_device_arg = "usb-host,bus=usb-bus.0,port=3.2,productid=" + usb_product_id + ",vendorid=" + usb_vendor_id
-					qemu_command += [ "-usb", "-device", qemu_usb_hub_device_arg ]
+					qemu_options += [ "-usb", "-device", qemu_usb_hub_device_arg ]
 
-		print("qemu command line : " + str(qemu_command))
+		final_command = qemu_command + qemu_options
+
+		print("qemu command line : " + str(final_command))
 
 		if qemu_dir_path not in self.disabled_keyword_list:
 			os.chdir(qemu_dir_path)
 
-		subprocess.call(qemu_command)
+		subprocess.call(final_command)
 
 if __name__ == "__main__":
 	xqemurun = XQEMURun()
