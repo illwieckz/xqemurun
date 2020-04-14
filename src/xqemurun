@@ -382,7 +382,7 @@ class XQEMURun():
 			print("usb hub: " + usb_hub_option)
 			usb_product_id = usb_hub_option[8:13]
 			usb_vendor_id = usb_hub_option[14:19]
-			qemu_usb_hub_device_arg = "usb-host,bus=usb-bus.0,port=3,product_id=" + usb_product_id + ",vendorid=" + usb_vendor_id
+			qemu_usb_hub_device_arg = "usb-host,bus=usb-bus.0,port=3,productid=" + usb_product_id + ",vendorid=" + usb_vendor_id
 			qemu_command += [ "-usb", "-device", qemu_usb_hub_device_arg ]
 
 		if usb_hub_option == "emulated":
@@ -403,7 +403,7 @@ class XQEMURun():
 					print("usb " + pad + ": " + usb_pad_option)
 					usb_product_id = usb_hub_option[8:13]
 					usb_vendor_id = usb_hub_option[14:19]
-					qemu_usb_pad_device_arg = "usb-host,bus=usb-bus.0,port=3.2,product_id=" + usb_product_id + ",vendorid=" + usb_vendor_id
+					qemu_usb_pad_device_arg = "usb-host,bus=usb-bus.0,port=3.2,productid=" + usb_product_id + ",vendorid=" + usb_vendor_id
 					qemu_command += [ "-usb", "-device", qemu_usb_hub_device_arg ]
 
 		print("qemu command line : " + str(qemu_command))
