@@ -98,7 +98,7 @@ class XQEMURun():
 		default_options["config"] = self.config_path
 		default_options["dir"] = self.getDefault("bin", "dir", "none")
 		default_options["bin"]=self.getDefault("bin", "bin", "qemu-system-xbox")
-		default_options["display"]=self.getDefault("core", "display", "sdl")
+		default_options["display"]=self.getDefault("sys", "display", "sdl")
 		default_options["gdb"]=self.getDefault("core", "gdb", "disabled")
 		default_options["kvm"]=self.getDefault("core", "kvm", "disabled")
 		default_options["xdk"]=self.getDefault("core", "xdk", "none")
@@ -187,7 +187,7 @@ class XQEMURun():
 			machine = args.machine
 
 		if args.display:
-			self.config_runtime.setKey("core", "display", args.display)
+			self.config_runtime.setKey("sys", "display", args.display)
 
 		if args.short:
 			if args.short in self.disabled_keyword_list:
@@ -290,7 +290,7 @@ class XQEMURun():
 		else:
 			print("gdb debug: disabled")
 
-		qemu_display = self.config_runtime.getKey("core", "display")
+		qemu_display = self.config_runtime.getKey("sys", "display")
 		print("display: " + qemu_display)
 		qemu_command += [ "-display", qemu_display ]
 
