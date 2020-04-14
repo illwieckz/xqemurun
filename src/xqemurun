@@ -184,6 +184,7 @@ class XQEMURun():
 
 		if args.machine:
 			self.config_runtime.setKey("core", "machine", args.machine)
+			machine = args.machine
 
 		if args.display:
 			self.config_runtime.setKey("core", "display", args.display)
@@ -195,22 +196,22 @@ class XQEMURun():
 				self.config_runtime.setKey("core", "short", "yes")
 
 		if args.bootrom:
-			self.config_runtime.setKey("sys", "bootrom", os.path.abspath(args.bootrom))
+			self.config_runtime.setKey(machine, "bootrom", os.path.abspath(args.bootrom))
 
 		if args.bios:
-			self.config_runtime.setKey("sys", "bios", os.path.abspath(args.bios))
+			self.config_runtime.setKey(machine, "bios", os.path.abspath(args.bios))
 
 		if args.disk:
 			if args.disk in self.disabled_keyword_list:
-				self.config_runtime.setKey("sys", "disk", "none")
+				self.config_runtime.setKey(machine, "disk", "none")
 			else:
-				self.config_runtime.setKey("sys", "disk", os.path.abspath(args.disk))
+				self.config_runtime.setKey(machine, "disk", os.path.abspath(args.disk))
 
 		if args.media:
 			if args.media in self.disabled_keyword_list:
-				self.config_runtime.setKey("sys", "media", "none")
+				self.config_runtime.setKey(machine, "media", "none")
 			else:
-				self.config_runtime.setKey("sys", "media", os.path.abspath(args.media))
+				self.config_runtime.setKey(machine, "media", os.path.abspath(args.media))
 
 		if args.hub:
 			self.config_runtime.setKey("usb", "hub", args.hub)
