@@ -457,7 +457,7 @@ class XQEMURun():
 
 				if usb_pad_option == "keyboard":
 					print("usb " + pad + ": keyboard")
-					qemu_usb_pad_device_arg = "usb-xbox-gamepad,bus=usb-bus.0,port=" + pad_dict[pad] + ".2"
+					qemu_usb_pad_device_arg = "usb-xbox-gamepad,port=3"
 					qemu_options += [ "-device", qemu_usb_pad_device_arg ]
 
 				elif usb_pad_option[0:8] == "forward:":
